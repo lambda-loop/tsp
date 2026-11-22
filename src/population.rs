@@ -322,6 +322,9 @@ impl InstanceScreen {
 
     fn draw_global_thermometer(&self, top: f32) {
         let optimum = match self.renderer.map.tsp.name.as_str() {
+            // Proven optima from Waterloo's National TSP collection.
+            "wi29" => 27_603,
+            "dj38" => 6_656,
             // Proven optima from TSPLIB95's symmetric TSP table.
             "eil51" => 426,
             "berlin52" => 7_542,

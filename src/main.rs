@@ -13,7 +13,9 @@ use problem::TSP;
 use rendering::renderer::{Map, Renderer};
 use showcase::Showcase;
 
-const INSTANCES: [(&str, &str, usize); 6] = [
+const INSTANCES: [(&str, &str, usize); 8] = [
+    ("wi29", include_str!("../data/wi29.tsp"), 29),
+    ("dj38", include_str!("../data/dj38.tsp"), 38),
     ("eil51", include_str!("../data/eil51.tsp"), 51),
     ("berlin52", include_str!("../data/berlin52.tsp"), 52),
     ("st70", include_str!("../data/st70.tsp"), 70),
@@ -163,6 +165,12 @@ mod tests {
             let tsp = TSP::parser(source).unwrap_or_else(|| panic!("invalid instance: {name}"));
             assert_eq!(tsp.name, name);
             assert_eq!(tsp.len, cities);
+            assert!(tsp.len < 100);
+            for i in 0..tsp.len {
+                for j in i + 1..tsp.len {
+                    assert_eq!(tsp.distance(i, j), tsp.distance(j, i));
+                }
+            }
             assert_eq!(start_instance(tsp).renderer.map.points.len(), cities);
         }
     }

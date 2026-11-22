@@ -61,7 +61,7 @@ impl Renderer {
         for p in &map.points {
             let (x, y) = self.view.to_screen(p.0, p.1);
 
-            draw_circle_lines(x, y, 12.0, 2.0, WHITE);
+            draw_circle_lines(x, y, 1.0, 1.0, WHITE);
         }
     }
 

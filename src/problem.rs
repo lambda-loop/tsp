@@ -10,6 +10,13 @@ pub struct TSP {
 pub type Point = u32;
 pub type Tour  = Box<[Point]>;
 
+pub fn tour_edges(tour: &[Point]) -> impl Iterator<Item = (usize, usize)> + '_ {
+    let successors = tour.iter().skip(1).chain(tour.first());
+    tour.iter()
+        .zip(successors)
+        .map(|(&from, &to)| (from as usize, to as usize))
+}
+
 impl TSP {
     // AI Generated
     pub fn parser(input: &str) -> Option<Self> {
@@ -102,6 +109,12 @@ impl TSP {
     #[inline]
     pub fn distance(&self, i: usize, j: usize) -> u32 {
         self.cost[i * self.len + j]
+    }
+
+    pub fn tour_cost(&self, tour: &[Point]) -> u64 {
+        tour_edges(tour)
+            .map(|(from, to)| u64::from(self.distance(from, to)))
+            .sum()
     }
 }
 

@@ -32,10 +32,15 @@ pub fn mutation (
     rng  : &mut SmallRng,
     t_len: usize        ,
 ) {
-    if let Some((begin, end))
-        = pick_interval(rng, t_len) {
-        tour[begin..=end].reverse()
+    if t_len < 2 {
+        return;
     }
+
+    let first = rng.random_range(0..t_len);
+    let second = rng.random_range(0..t_len - 1);
+    let second = second + usize::from(second >= first);
+    let (begin, end) = (first.min(second), first.max(second));
+    tour[begin..=end].reverse()
 }
 
 pub fn crossing (
@@ -45,7 +50,7 @@ pub fn crossing (
     rng  : &mut SmallRng,
     t_len: usize        ,
     set_buffer: &mut Set, // needs to be cleared outside!
-) {
+) -> Option<(usize, usize)> {
     if let Some((begin, end)) = pick_interval(rng, t_len) {
         for i in begin..=end {
             let v   = l[i];
@@ -67,8 +72,10 @@ pub fn crossing (
             in_i = (in_i + 1) % t_len;
         }
         
+        Some((begin, end))
     } else {
         r#in.copy_from_slice(r);
+        None
     }
 }
 

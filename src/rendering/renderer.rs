@@ -4,14 +4,14 @@ use macroquad::prelude::*;
 
 use super::view::*;
 use crate::problem::{
-    Tour, TSP,
+    Tour, TSP, tour_edges,
 };
 
 #[derive(Debug, Clone)]
 pub struct Map {
     pub tsp: TSP,
     pub points: Vec<(f32, f32)>,
-    // pub tour       : Tour      ,
+    pub tour: Tour,
     // pub points     : Vec<Point>,
     // pub tmax       : f64       ,
     // pub used_cost  : f64       ,
@@ -30,7 +30,7 @@ impl Map {
             .map(|&(x, y)| (x as f32, y as f32))
             .collect();
         Map {
-            tsp, points,
+            tsp, points, tour: Box::default(),
         }
     }
 }
@@ -48,47 +48,53 @@ impl Renderer {
         Self { map, view }
     }
 
-    pub fn draw(&self) {
-        let map = &self.map;
-
-        self.draw_points(map);
-        self.draw_tour(map);
-        self.draw_route_points(map);
-        self.draw_info(map);
+    pub fn draw(&self, bounds: Rect) {
+        self.draw_tour_preview(bounds, &self.map.tour, 3.0);
+        self.draw_route_points(&self.map);
     }
 
-    fn draw_points(&self, map: &Map) {
-        for p in &map.points {
-            let (x, y) = self.view.to_screen(p.0, p.1);
+    pub fn draw_preview(&self, bounds: Rect) {
+        self.draw_points(bounds, 2.0);
+    }
 
-            draw_circle_lines(x, y, 1.0, 1.0, WHITE);
+    pub fn draw_tour_preview(&self, bounds: Rect, tour: &Tour, radius: f32) {
+        self.draw_tour(bounds, tour);
+        self.draw_points(bounds, radius);
+    }
+
+    fn draw_points(&self, bounds: Rect, radius: f32) {
+        for &(x, y) in &self.map.points {
+            let (x, y) = self.view.project(x, y, bounds);
+            draw_circle(x, y, radius, WHITE);
         }
     }
 
-    // TODO!()
-    fn draw_tour(&self, map: &Map) {
-        // if map.tour.is_empty() {
-        //     return;
-        // }
+    fn draw_tour(&self, bounds: Rect, tour: &Tour) {
+        for (from, to) in tour_edges(tour) {
+            self.draw_edge(bounds, (from, to), 1.5, SKYBLUE, 1.0);
+        }
+    }
 
-        // let mut full_route = Vec::with_capacity(map.tour.len() as usize + 2);
-
-        // // TODO: change this shit!!
-        // full_route.push(0);
-        // full_route.extend_from_slice(&map.tour);
-        // full_route.push(1);
-        // // WHY REALLY COPY IT!!??
-
-        // for pair in full_route.windows(2) {
-        //     let (i, j) = (pair[0], pair[1]);
-        //     let pl = &map.points[i as usize];
-        //     let pr = &map.points[j as usize];
-
-        //     let (xl, yl) = self.view.to_screen(pl.x, pl.y);
-        //     let (xr, yr) = self.view.to_screen(pr.x, pr.y);
-
-        //     draw_line(xl, yl, xr, yr, 3.0, BLUE);
-        // }
+    pub fn draw_edge(
+        &self,
+        bounds: Rect,
+        (from, to): (usize, usize),
+        thickness: f32,
+        color: Color,
+        progress: f32,
+    ) {
+        let (x1, y1) = self.map.points[from];
+        let (x2, y2) = self.map.points[to];
+        let (x1, y1) = self.view.project(x1, y1, bounds);
+        let (x2, y2) = self.view.project(x2, y2, bounds);
+        draw_line(
+            x1,
+            y1,
+            x1 + (x2 - x1) * progress,
+            y1 + (y2 - y1) * progress,
+            thickness,
+            color,
+        );
     }
 
     fn draw_route_points(&self, map: &Map) {
@@ -112,20 +118,4 @@ impl Renderer {
         draw_circle(x, y, 14.0, RED);
         draw_circle_lines(x, y, 16.0, 2.0, WHITE);
     }
-
-    fn draw_info(&self, map: &Map) {
-        let font_size = 24.0;
-
-        let title_dims = measure_text(&map.tsp.name, None, font_size as u16, 1.0);
-        let title_x = (screen_width() - title_dims.width) / 2.0;
-        draw_text(&map.tsp.name, title_x, 30.0, font_size, WHITE);
-
-        // let cost_text = format!("{:.2} / {:.2}", map.used_cost, map.tmax);
-        // let cost_dims = measure_text(&cost_text, None, 20, 1.0);
-        // let cost_x = screen_width() - cost_dims.width - 20.0;
-
-        // draw_text(&cost_text, cost_x, screen_height() - 50.0, 20.0, cost_color);
-    }
 }
-
-

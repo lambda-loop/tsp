@@ -1,6 +1,6 @@
 //
 
-use macroquad::window::{screen_height, screen_width};
+use macroquad::prelude::{Rect, screen_height, screen_width};
 
 const MARGIN: f32 = 50.0;
 
@@ -28,15 +28,23 @@ impl View {
         }
     }
 
+    pub fn screen_bounds() -> Rect {
+        Rect::new(
+            MARGIN,
+            MARGIN,
+            (screen_width() - MARGIN * 2.0).max(1.0),
+            (screen_height() - MARGIN * 2.0).max(1.0),
+        )
+    }
+
     pub fn to_screen(&self, x: f32, y: f32) -> (f32, f32) {
-        let available_w = screen_width() - MARGIN * 2.0;
-        let available_h = screen_height() - MARGIN * 2.0;
+        self.project(x, y, Self::screen_bounds())
+    }
 
-        let scale = (available_w / self.width).min(available_h / self.height);
-
-        let offset_x = MARGIN + (available_w - self.width * scale) / 2.0;
-
-        let offset_y = MARGIN + (available_h - self.height * scale) / 2.0;
+    pub fn project(&self, x: f32, y: f32, bounds: Rect) -> (f32, f32) {
+        let scale = (bounds.w / self.width).min(bounds.h / self.height);
+        let offset_x = bounds.x + (bounds.w - self.width * scale) / 2.0;
+        let offset_y = bounds.y + (bounds.h - self.height * scale) / 2.0;
 
         let sx = (x - self.min_x) * scale + offset_x;
         let sy = (y - self.min_y) * scale + offset_y;

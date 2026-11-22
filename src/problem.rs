@@ -1,10 +1,10 @@
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TSP {
-    name: String           , 
-    ps  : Box<[(f64, f64)]>, 
-    cost: Box<[u32]>       , // linearized square matrix
-    len : usize            ,
+    pub name: String           , 
+    pub ps  : Box<[(f64, f64)]>, 
+    pub cost: Box<[u32]>       , // linearized square matrix
+    pub len : usize            ,
 }
 
 pub type Point = u32;

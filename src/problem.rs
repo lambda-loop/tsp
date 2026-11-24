@@ -128,8 +128,8 @@ pub fn euclidean_diff(
     let (x1, y1) = points[i];
     let (x2, y2) = points[j];
 
-    let dx = x1 - x2;
-    let dy = y1 - y2;
+    let double dx = x1 - x2; // it's safer to use double here, so im doing it
+    let double dy = y1 - y2;
 
-    ((dx * dx + dy * dy).sqrt() + 0.5) as u32
+    (dx * dx + dy * dy).sqrt().round() as u32
 }
